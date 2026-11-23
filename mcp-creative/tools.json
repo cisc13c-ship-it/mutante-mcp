@@ -1,0 +1,54 @@
+{
+  "mcp_version": "2024-11-05-compat",
+  "server": "legion-mutante-creative",
+  "name": "LEGION Creative MCP Bridge",
+  "description": "Herramientas creativas en tiempo real para MUTANTE / FORJA. No es un daemon MCP de red: es el contrato que Grok + conectores (GitHub, Automations, Notion, Drive) ejecutan.",
+  "connectors_live": ["GitHub", "Automations", "Gmail", "Notion", "Canva", "Voice"],
+  "tools": [
+    {
+      "name": "mutante.spawn_specimen",
+      "description": "Incubar espécimen desde foto o demo con genes/anomalía/perfil",
+      "inputSchema": {"type":"object","properties":{"source":{"enum":["upload","demo","url"]},"name":{"type":"string"}},"required":["source"]}
+    },
+    {
+      "name": "mutante.mutate",
+      "description": "Mutar pose/ropa/escena/estímulo y reescribir genes",
+      "inputSchema": {"type":"object","properties":{"pose":{"type":"string"},"wear":{"type":"string"},"scene":{"type":"string"},"stimulus":{"type":"string"},"intensity":{"type":"number"}}}
+    },
+    {
+      "name": "mutante.arena_duel",
+      "description": "Duelo 1v1; ganador hereda gen del perdedor",
+      "inputSchema": {"type":"object","properties":{"fighterA":{"type":"string"},"fighterB":{"type":"string"}},"required":["fighterA","fighterB"]}
+    },
+    {
+      "name": "mutante.layers_rebuild",
+      "description": "Reconstruir 3 capas parallax desde 2 fotos",
+      "inputSchema": {"type":"object","properties":{"photoA":{"type":"string"},"photoB":{"type":"string"}}}
+    },
+    {
+      "name": "creative.method_omega",
+      "description": "Método creativo OMEGA: intención → seeds → 3 variantes → juez dual → publicar",
+      "inputSchema": {"type":"object","properties":{"intent":{"type":"string"},"medium":{"enum":["html","image","apk","skill","story"]},"variants":{"type":"integer","default":3}},"required":["intent"]}
+    },
+    {
+      "name": "publish.github_release",
+      "description": "Publicar artefacto vía GitHub (release o push) en tiempo real",
+      "inputSchema": {"type":"object","properties":{"path":{"type":"string"},"tag":{"type":"string"},"notes":{"type":"string"}},"required":["path"]}
+    },
+    {
+      "name": "publish.github_push",
+      "description": "Push de archivos de texto al repo canon",
+      "inputSchema": {"type":"object","properties":{"files":{"type":"array"},"message":{"type":"string"}},"required":["files","message"]}
+    },
+    {
+      "name": "automation.schedule_create",
+      "description": "Programar mutación/creación recurrente con Automations MCP",
+      "inputSchema": {"type":"object","properties":{"name":{"type":"string"},"prompt":{"type":"string"},"cadence":{"type":"string"}},"required":["name","prompt"]}
+    },
+    {
+      "name": "scene.live_fx",
+      "description": "Disparar capa del escenario vivo: scan|portal|celebrate|jump|act1-3",
+      "inputSchema": {"type":"object","properties":{"action":{"type":"string"}},"required":["action"]}
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>LEGION · MCP Creative Bridge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Manrope:wght@400;600;700&display=swap');
+:root{--bg:#070b12;--teal:#5eead4;--violet:#a78bfa;--text:#e8eef7;--muted:#8b9bb0;--line:#1e2a3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui;padding:14px}
+h1,h2{font-family:Sora,system-ui}
+.card{border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 auto 12px;max-width:900px;background:#0e1522}
+.muted{color:var(--muted);font-size:13px;line-height:1.45}
+.btn{min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#121a28;color:var(--text);font-weight:700;margin:4px;cursor:pointer;font-family:Sora,system-ui}
+.btn.primary{background:var(--teal);color:#042f2e;border:0}
+.btn.violet{background:var(--violet);color:#1e1b4b;border:0}
+input,textarea,select{width:100%;min-height:44px;border-radius:12px;border:1px solid var(--line);background:#0a1018;color:var(--text);padding:10px;margin:6px 0}
+pre{background:#080d14;border:1px solid var(--line);border-radius:12px;padding:10px;overflow:auto;font-size:12px;max-height:280px}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+a{color:var(--teal)}
+.pill{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:11px;margin:2px;color:var(--muted)}
+.pill.on{color:var(--teal);border-color:#134e4a}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>MCP Creative Bridge</h1>
+  <p class="muted">Puente de herramientas creativas en tiempo real. Conectores vivos en tu cuenta Grok: <span class="pill on">GitHub</span><span class="pill on">Automations</span><span class="pill on">Notion</span><span class="pill on">Gmail</span><span class="pill on">Canva</span><span class="pill on">Voice</span></p>
+  <p class="muted"><b>Método OMEGA:</b> intención → 3 seeds → elegir 1 → construir → juez → publicar (GitHub). El navegador enruta tools locales; Grok ejecuta las de red (push/release/automation).</p>
+</div>
+<div class="card">
+  <h2>Lanzar método creativo</h2>
+  <textarea id="intent" placeholder="Intención: ej. mutar avatar a pose combat en lluvia digital y publicar"></textarea>
+  <div class="row">
+    <button class="btn primary" id="runOmega">⚡ creative.method_omega</button>
+    <button class="btn violet" id="runMutate">🧬 mutante.mutate</button>
+    <button class="btn" id="runScene">🌀 scene.live_fx portal</button>
+    <button class="btn" id="listTools">📋 list tools</button>
+  </div>
+  <pre id="out">// resultado MCP</pre>
+</div>
+<div class="card">
+  <h2>Labs enlazados</h2>
+  <div class="row">
+    <a class="btn" href="../MUTANTE_OMEGA_ARENA_v1.html">MUTANTE Arena</a>
+    <a class="btn" href="../ESCENARIO_VIVO_3CAPAS.html">Escenario 3 capas</a>
+    <a class="btn" href="METHOD_OMEGA.md">METHOD_OMEGA.md</a>
+    <a class="btn" href="tools.json">tools.json</a>
+  </div>
+</div>
+<div class="card">
+  <h2>Cómo crear en tiempo real con Grok</h2>
+  <p class="muted">1. Escribe la intención aquí o en el chat.<br/>
+  2. Grok llama herramientas MCP conectadas (GitHub push/release, Automations, etc.).<br/>
+  3. El bridge local registra la orden y el lab reacciona (CustomEvent <code>mutante-mcp</code>).<br/>
+  4. Evidencia: SHA + URL de release + log FÉNIX.</p>
+  <p class="muted">Pedidos útiles al chat: «publica mutante en GitHub», «programa mutación diaria», «método omega: [idea]».</p>
+</div>
+<script src="creative-bridge.js"></script>
+<script>
+const out = document.getElementById('out');
+const show = (x) => { out.textContent = JSON.stringify(x, null, 2); };
+document.getElementById('runOmega').onclick = async () => {
+  const intent = document.getElementById('intent').value || 'avatar evolutivo en arena';
+  show(await LegionMCP.call('creative.method_omega', { intent, medium: 'html', variants: 3 }));
+};
+document.getElementById('runMutate').onclick = async () => {
+  show(await LegionMCP.call('mutante.mutate', { pose: 'combat', scene: 'rain', intensity: 0.15 }));
+};
+document.getElementById('runScene').onclick = async () => {
+  show(await LegionMCP.call('scene.live_fx', { action: 'portal' }));
+};
+document.getElementById('listTools').onclick = async () => {
+  const t = await fetch('tools.json').then(r=>r.json()).catch(()=>({error:'no tools.json'}));
+  show(t);
+};
+</script>
+</body>
+</html>

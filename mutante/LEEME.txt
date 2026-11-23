@@ -1,0 +1,13 @@
+MUTANTE Ω + ARENA v1
+====================
+Archivo: MUTANTE_OMEGA_ARENA_v1.html
+(también en /workspace/artifacts/MUTANTE_OMEGA_ARENA_v1.html)
+
+Abrir en Chrome / móvil (file o servir HTTP).
+
+Lab: subir foto (privada IndexedDB) o Demo → perfil + genes + anomalía
+Mutar: pose/ropa/escena/estímulo · Auto 25s · Hablar
+Arena: 2 especímenes · 3 rounds · ganador hereda gen (+ a veces anomalía) del perdedor
+Registro: eventos locales
+
+Sin Base44. Sin servidor. Fotos no salen del dispositivo.

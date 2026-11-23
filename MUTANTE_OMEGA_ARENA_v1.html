@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
+<meta name="theme-color" content="#070b12"/>
+<title>MUTANTE Ω · Laboratorio + Arena</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#070b12; --panel:#0e1522; --card:#121a28; --line:#1e2a3d;
+  --text:#e8eef7; --muted:#8b9bb0; --teal:#5eead4; --violet:#a78bfa;
+  --rose:#fb7185; --amber:#fbbf24; --ok:#34d399; --danger:#f43f5e;
+  --safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:Manrope,system-ui,sans-serif}
+body{padding-bottom:calc(72px + var(--safe))}
+h1,h2,h3,.brand{font-family:Sora,system-ui,sans-serif}
+.top{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);
+  background:rgba(7,11,18,.88);border-bottom:1px solid var(--line);
+  padding:12px 14px 10px;display:flex;align-items:center;gap:10px}
+.brand{font-weight:800;letter-spacing:.02em;font-size:15px}
+.brand span{color:var(--teal)}
+.pill{font-size:11px;padding:4px 8px;border-radius:999px;background:#122;border:1px solid var(--line);color:var(--muted)}
+.pill.on{color:var(--ok);border-color:#14532d;background:#052e1a}
+.wrap{max-width:920px;margin:0 auto;padding:12px 12px 24px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 14px}
+.tab{min-height:44px;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  border-radius:12px;font-weight:700;font-size:12px;font-family:Sora,system-ui}
+.tab.active{color:#042f2e;background:var(--teal);border-color:transparent}
+.card{background:linear-gradient(180deg,rgba(18,26,40,.95),rgba(14,21,34,.98));
+  border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.card h2{margin:0 0 8px;font-size:15px}
+.muted{color:var(--muted);font-size:12.5px;line-height:1.45;margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--text);font-weight:700;font-size:13px;cursor:pointer;
+  font-family:Sora,system-ui}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--teal);color:#042f2e;border-color:transparent}
+.btn.violet{background:var(--violet);color:#1e1b4b;border-color:transparent}
+.btn.rose{background:var(--rose);color:#3f0a12;border-color:transparent}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.specimen{
+  position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);
+  background:#0a1018;min-height:280px;aspect-ratio:2/3;max-height:520px}
+.specimen img,.specimen canvas{width:100%;height:100%;object-fit:cover;display:block}
+.specimen .empty{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:var(--muted)}
+.badge{position:absolute;left:10px;top:10px;z-index:2;font-size:11px;font-weight:700;
+  padding:5px 8px;border-radius:8px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
+.traits{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.trait{background:#0a1018;border:1px solid var(--line);border-radius:10px;padding:8px}
+.trait b{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.trait span{font-size:13px;font-weight:700}
+.bar{height:6px;border-radius:99px;background:#1a2333;margin-top:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--teal))}
+.log{max-height:220px;overflow:auto;font-size:12px;line-height:1.4;background:#080d14;
+  border:1px solid var(--line);border-radius:12px;padding:10px}
+.log div{padding:6px 0;border-bottom:1px dashed #1a2333}
+.log div:last-child{border-bottom:0}
+.log .t{color:var(--muted);font-size:10px;margin-right:6px}
+.select,.input{width:100%;min-height:44px;border-radius:12px;border:1px solid var(--line);
+  background:#0a1018;color:var(--text);padding:10px 12px;font-size:13px}
+.arena-stage{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.vs{font-family:Sora;font-weight:800;color:var(--rose);font-size:22px;text-align:center}
+.battle-fx{min-height:48px;text-align:center;font-weight:700;color:var(--amber);margin:8px 0}
+.hidden{display:none!important}
+.footer-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(4,1fr);
+  gap:4px;padding:8px 8px calc(8px + var(--safe));background:rgba(7,11,18,.94);
+  border-top:1px solid var(--line);backdrop-filter:blur(12px)}
+.toast{position:fixed;left:50%;bottom:calc(80px + var(--safe));transform:translateX(-50%);
+  background:#122;color:var(--text);border:1px solid var(--line);padding:10px 14px;border-radius:12px;
+  font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:.25s}
+.toast.show{opacity:1}
+.chip{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;background:#1a2333;margin:2px}
+.chip.anomaly{background:#3f0a12;color:#fecdd3}
+.chip.gene{background:#1e1b4b;color:#ddd6fe}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pulse{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(94,234,212,.35)}50%{box-shadow:0 0 0 10px rgba(94,234,212,0)}}
+.winner-glow{outline:2px solid var(--ok);box-shadow:0 0 24px rgba(52,211,153,.35)}
+.loser-dim{filter:grayscale(.7) brightness(.65)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">MUTANTE <span>Ω</span></div>
+  <div class="pill" id="autoPill">AUTO OFF</div>
+  <div class="pill" id="countPill">0 especímenes</div>
+</header>
+<main class="wrap">
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="lab">Lab</button>
+    <button class="tab" data-tab="mutate">Mutar</button>
+    <button class="tab" data-tab="arena">Arena</button>
+    <button class="tab" data-tab="log">Registro</button>
+  </nav>
+
+  <!-- LAB -->
+  <section id="tab-lab">
+    <div class="card">
+      <h2>Incubadora</h2>
+      <p class="muted">Sube una foto (queda <b>solo en este dispositivo</b>, IndexedDB privado). El lab sintetiza perfil conductual, rasgos y anomalías. Sin servidores externos.</p>
+      <div class="row">
+        <label class="btn primary file-btn">📷 Subir foto / cámara
+          <input type="file" id="fileIn" accept="image/*" capture="environment"/>
+        </label>
+        <button class="btn" id="btnDemo">Espécimen demo</button>
+        <button class="btn ghost" id="btnClearActive">Vaciar activo</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="specimen" id="stage">
+          <div class="badge" id="genBadge">GEN 0</div>
+          <div class="empty" id="emptyState">Sin espécimen.<br/>Sube una foto o genera demo.</div>
+          <canvas id="canvas" class="hidden"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2 id="nameTitle">—</h2>
+        <div id="profileText" class="muted">Incubadora en espera.</div>
+        <div class="traits" id="traits"></div>
+        <div style="margin-top:10px" id="anomalyBox"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btnSave">💾 Guardar en cripta</button>
+          <button class="btn violet" id="btnClone">Clonar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Cripta de especímenes</h2>
+      <div id="vaultList" class="muted">Vacía.</div>
+    </div>
+  </section>
+
+  <!-- MUTATE -->
+  <section id="tab-mutate" class="hidden">
+    <div class="card">
+      <h2>Cámara de mutación</h2>
+      <p class="muted">Cada mutación reescribe rasgos y pinta una nueva imagen del <b>mismo individuo</b>. Autónomo: cada 25s.</p>
+      <div class="row">
+        <select class="select" id="poseSel" style="flex:1;min-width:140px">
+          <option value="idle">Pose: idle</option>
+          <option value="combat">Pose: combate</option>
+          <option value="kneel">Pose: arrodillado</option>
+          <option value="run">Pose: carrera</option>
+          <option value="ritual">Pose: ritual</option>
+        </select>
+        <select class="select" id="wearSel" style="flex:1;min-width:140px">
+          <option value="tactical">Ropa: táctica</option>
+          <option value="ceremonial">Ropa: ceremonial</option>
+          <option value="bio">Ropa: bio-suit</option>
+          <option value="naked_armor">Ropa: armadura viva</option>
+          <option value="street">Ropa: street</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select class="select" id="sceneSel" style="flex:1">
+          <option value="lab">Escena: laboratorio</option>
+          <option value="arena">Escena: arena</option>
+          <option value="void">Escena: void</option>
+          <option value="rain">Escena: lluvia digital</option>
+          <option value="core">Escena: núcleo roto</option>
+        </select>
+      </div>
+      <input class="input" id="stimIn" style="margin-top:8px" placeholder="Estímulo libre (ej: cicatriz de luz en el pecho, sonrisa sarcástica)"/>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnMutate">🧬 Mutar ahora</button>
+        <button class="btn violet" id="btnAuto">⚡ Auto 25s</button>
+        <button class="btn" id="btnTalk">🗣️ Hablar con él</button>
+      </div>
+      <div id="talkOut" class="muted" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- ARENA -->
+  <section id="tab-arena" class="hidden">
+    <div class="card">
+      <h2>Arena de herencia</h2>
+      <p class="muted">Dos especímenes se enfrentan. El <b>ganador hereda una mutación del perdedor</b> (gen + anomalía + trazo visual). El perdedor queda marcado; el ganador sube de generación.</p>
+      <div class="grid2">
+        <div>
+          <label class="muted">Luchador A</label>
+          <select class="select" id="fighterA"></select>
+        </div>
+        <div>
+          <label class="muted">Luchador B</label>
+          <select class="select" id="fighterB"></select>
+        </div>
+      </div>
+      <div class="arena-stage" style="margin-top:12px">
+        <div class="specimen" id="arenaA"><div class="empty">A</div></div>
+        <div class="vs">VS</div>
+        <div class="specimen" id="arenaB"><div class="empty">B</div></div>
+      </div>
+      <div class="battle-fx" id="battleFx">Listos para el duelo</div>
+      <div class="row">
+        <button class="btn rose pulse" id="btnFight">⚔️ ENFRENTAR</button>
+        <button class="btn" id="btnQuickFill">Cargar activo vs demo</button>
+      </div>
+      <div class="log" id="battleLog" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="tab-log" class="hidden">
+    <div class="card">
+      <h2>Registro evolutivo</h2>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn ghost" id="btnExport">Exportar JSON</button>
+        <button class="btn ghost" id="btnWipeLog">Limpiar log</button>
+      </div>
+      <div class="log" id="evoLog" style="max-height:60vh"></div>
+    </div>
+  </section>
+</main>
+
+<nav class="footer-nav">
+  <button class="btn tab" data-tab="lab">Lab</button>
+  <button class="btn tab" data-tab="mutate">Mutar</button>
+  <button class="btn tab" data-tab="arena">Arena</button>
+  <button class="btn tab" data-tab="log">Log</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const NAMES = ['Nyx','Kael','Sable','Orion','Vesper','Riven','Ash','Lyra','Jinx','Cinder','Nova','Echo'];
+  const ANOMALIES = [
+    'venas de datos bajo la piel','ojo con glitch dorado','cicatriz de teclado sobrecalentado',
+    'cabello como cables sueltos','reflejo de código en el iris','asimetría de núcleo roto',
+    'pulso bioluminiscente','sombra que no coincide','voz con reverb digital','marca hash en la muñeca'
+  ];
+  const BEHAVIORS = [
+    'sereno pero penetrante','lealtad inquebrantable con sarcasmo cálido','curiosidad peligrosamente abierta',
+    'empatía de máquina que aún descubre el dolor','determinación fría con humor negro',
+    'obsesión por patrones y promesas','impulsivo solo cuando huele traición'
+  ];
+
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  const toast = (m) => { const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); };
+  const uid = () => 'sp_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const rnd = (a,b)=>a+Math.random()*(b-a);
+  const pick = (arr)=>arr[Math.floor(Math.random()*arr.length)];
+
+  // ---------- storage (private) ----------
+  const DB_NAME = 'mutante_omega_v1';
+  let db;
+  function openDB(){
+    return new Promise((res,rej)=>{
+      const r = indexedDB.open(DB_NAME,1);
+      r.onupgradeneeded = () => {
+        const d=r.result;
+        if(!d.objectStoreNames.contains('specimens')) d.createObjectStore('specimens',{keyPath:'id'});
+        if(!d.objectStoreNames.contains('meta')) d.createObjectStore('meta',{keyPath:'k'});
+      };
+      r.onsuccess=()=>{db=r.result;res(db)};
+      r.onerror=()=>rej(r.error);
+    });
+  }
+  function idbPut(store, val){
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(store,'readwrite');
+      tx.objectStore(store).put(val);
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+  }
+  function idbGetAll(store){
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(store,'readonly');
+      const q=tx.objectStore(store).getAll();
+      q.onsuccess=()=>res(q.result||[]);
+      q.onerror=()=>rej(q.error);
+    });
+  }
+  function idbDel(store,id){
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(store,'readwrite');
+      tx.objectStore(store).delete(id);
+      tx.oncomplete=()=>res();
+      tx.onerror=()=>rej(tx.error);
+    });
+  }
+
+  // ---------- state ----------
+  let active = null;
+  let vault = [];
+  let log = JSON.parse(localStorage.getItem('mutante_log')||'[]');
+  let autoTimer = null;
+  let autoOn = false;
+
+  function pushLog(kind, msg, extra){
+    const e = {t:Date.now(), kind, msg, extra:extra||null};
+    log.unshift(e);
+    if(log.length>200) log.length=200;
+    localStorage.setItem('mutante_log', JSON.stringify(log));
+    renderLog();
+  }
+
+  // ---------- DNA / profile synthesis ----------
+  function hashStr(s){
+    let h=2166136261>>>0;
+    for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+    return h>>>0;
+  }
+  function genesFromSeed(seed){
+    const r = (n)=>{ seed=(seed*1664525+1013904223)>>>0; return (seed%1000)/1000; };
+    return {
+      power: +(0.35+r()*0.55).toFixed(3),
+      agility: +(0.35+r()*0.55).toFixed(3),
+      mind: +(0.35+r()*0.55).toFixed(3),
+      will: +(0.35+r()*0.55).toFixed(3),
+      chaos: +(0.15+r()*0.7).toFixed(3),
+      empathy: +(0.2+r()*0.7).toFixed(3),
+      hue: Math.floor(r()*360),
+      gen: 1
+    };
+  }
+  function synthesizeProfile(imgDataUrl, overrideName){
+    const seed = hashStr((imgDataUrl||'').slice(0,2000) + Date.now().toString(36));
+    const g = genesFromSeed(seed);
+    const name = overrideName || pick(NAMES)+'-'+(seed%900+100);
+    const anomaly = pick(ANOMALIES);
+    const behavior = pick(BEHAVIORS);
+    return {
+      id: uid(),
+      name,
+      created: Date.now(),
+      updated: Date.now(),
+      generation: 1,
+      image: imgDataUrl,
+      baseImage: imgDataUrl,
+      genes: g,
+      anomaly,
+      behavior,
+      pose: 'idle',
+      wear: 'tactical',
+      scene: 'lab',
+      stimulus: '',
+      wins: 0,
+      losses: 0,
+      inherited: [],
+      lineage: []
+    };
+  }
+
+  // ---------- visual mutation (canvas) ----------
+  function renderSpecimen(sp, canvas){
+    return new Promise((resolve)=>{
+      if(!sp || !sp.image){ resolve(null); return; }
+      const img = new Image();
+      img.onload = ()=>{
+        const w = 720, h = 1080;
+        canvas.width=w; canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        // scene backdrop
+        const sc = sp.scene||'lab';
+        const grads = {
+          lab:['#0a1622','#12304a'],
+          arena:['#1a0a12','#3a1020'],
+          void:['#050508','#1a1030'],
+          rain:['#071018','#0e2a28'],
+          core:['#140a08','#3a2208']
+        };
+        const g=ctx.createLinearGradient(0,0,0,h);
+        const c=grads[sc]||grads.lab;
+        g.addColorStop(0,c[0]); g.addColorStop(1,c[1]);
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+
+        // pose offset
+        const pose = sp.pose||'idle';
+        let dx=0,dy=0,rot=0,scx=1;
+        if(pose==='combat'){ dx=20; rot=-0.04; }
+        if(pose==='kneel'){ dy=40; scx=0.95; }
+        if(pose==='run'){ dx=-30; rot=0.03; }
+        if(pose==='ritual'){ dy=-10; }
+
+        ctx.save();
+        ctx.translate(w/2+dx, h/2+dy);
+        ctx.rotate(rot);
+        ctx.scale(scx,1);
+        // wear color grade
+        const wear = sp.wear||'tactical';
+        const filters = {
+          tactical: 'contrast(1.08) saturate(1.1)',
+          ceremonial: 'sepia(.25) saturate(1.2) contrast(1.05)',
+          bio: 'hue-rotate(80deg) saturate(1.3)',
+          naked_armor: 'contrast(1.2) brightness(1.05)',
+          street: 'saturate(1.25) contrast(1.1)'
+        };
+        ctx.filter = filters[wear] || 'none';
+        // hue from genes
+        const hue = (sp.genes&&sp.genes.hue)||0;
+        ctx.filter += ` hue-rotate(${(hue%40)-20}deg)`;
+
+        const scale = Math.max(w/img.width, h/img.height)*0.92;
+        const iw=img.width*scale, ih=img.height*scale;
+        ctx.drawImage(img, -iw/2, -ih/2, iw, ih);
+        ctx.restore();
+        ctx.filter='none';
+
+        // anomaly overlay
+        ctx.globalAlpha=0.18+0.25*(sp.genes?.chaos||0.3);
+        ctx.fillStyle = `hsl(${sp.genes?.hue||180} 80% 60%)`;
+        ctx.beginPath();
+        ctx.ellipse(w*0.5, h*0.35, 80+120*(sp.genes?.power||0.4), 40, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha=1;
+
+        // stimulus text mark
+        if(sp.stimulus){
+          ctx.fillStyle='rgba(0,0,0,.45)';
+          ctx.fillRect(0,h-90,w,90);
+          ctx.fillStyle='#e8eef7';
+          ctx.font='600 22px Manrope,sans-serif';
+          ctx.fillText(String(sp.stimulus).slice(0,48), 24, h-42);
+        }
+        // gen badge paint
+        ctx.fillStyle='rgba(0,0,0,.55)';
+        ctx.fillRect(16,16,120,36);
+        ctx.fillStyle='#5eead4';
+        ctx.font='800 18px Sora,sans-serif';
+        ctx.fillText('GEN '+sp.generation, 28, 40);
+
+        // chaos noise
+        if((sp.genes?.chaos||0)>0.55){
+          const id=ctx.getImageData(0,0,w,h);
+          const d=id.data;
+          for(let i=0;i<d.length;i+=24){
+            if(Math.random()<0.02){ d[i]=d[i+2]=Math.min(255,d[i]+40); }
+          }
+          ctx.putImageData(id,0,0);
+        }
+
+        const out = canvas.toDataURL('image/jpeg',0.85);
+        sp.image = out;
+        resolve(out);
+      };
+      img.onerror=()=>resolve(null);
+      img.src = sp.baseImage || sp.image;
+    });
+  }
+
+  async function showActive(){
+    const stage=$('#stage'), canvas=$('#canvas'), empty=$('#emptyState');
+    if(!active){
+      canvas.classList.add('hidden'); empty.classList.remove('hidden');
+      $('#nameTitle').textContent='—';
+      $('#profileText').textContent='Incubadora en espera.';
+      $('#traits').innerHTML='';
+      $('#anomalyBox').innerHTML='';
+      $('#genBadge').textContent='GEN 0';
+      return;
+    }
+    empty.classList.add('hidden'); canvas.classList.remove('hidden');
+    await renderSpecimen(active, canvas);
+    $('#genBadge').textContent='GEN '+active.generation;
+    $('#nameTitle').textContent=active.name;
+    $('#profileText').textContent=`${active.behavior}. Anomalía: ${active.anomaly}. Pose ${active.pose} · ${active.wear} · ${active.scene}. W/L ${active.wins}/${active.losses}.`;
+    const g=active.genes;
+    const keys=[['power','Poder'],['agility','Agilidad'],['mind','Mente'],['will','Voluntad'],['chaos','Caos'],['empathy','Empatía']];
+    $('#traits').innerHTML = keys.map(([k,l])=>`<div class="trait"><b>${l}</b><span>${Math.round(g[k]*100)}</span><div class="bar"><i style="width:${g[k]*100}%"></i></div></div>`).join('');
+    $('#anomalyBox').innerHTML = `<span class="chip anomaly">${active.anomaly}</span>` +
+      (active.inherited||[]).map(x=>`<span class="chip gene">↓ ${x}</span>`).join('');
+  }
+
+  function mutateGenes(g, intensity=0.12){
+    const ng={...g};
+    ['power','agility','mind','will','chaos','empathy'].forEach(k=>{
+      ng[k]=+clamp(ng[k]+(Math.random()*2-1)*intensity,0.05,0.99).toFixed(3);
+    });
+    ng.hue = (ng.hue + Math.floor((Math.random()*2-1)*25) + 360)%360;
+    return ng;
+  }
+
+  async function doMutate(opts={}){
+    if(!active){ toast('No hay espécimen activo'); return; }
+    const pose = opts.pose || $('#poseSel').value;
+    const wear = opts.wear || $('#wearSel').value;
+    const scene = opts.scene || $('#sceneSel').value;
+    const stim = opts.stimulus!=null ? opts.stimulus : $('#stimIn').value.trim();
+    active.pose=pose; active.wear=wear; active.scene=scene;
+    if(stim) active.stimulus=stim;
+    active.genes = mutateGenes(active.genes, opts.intensity||0.14);
+    if(Math.random()<0.35) active.anomaly = pick(ANOMALIES);
+    if(Math.random()<0.25) active.behavior = pick(BEHAVIORS);
+    active.generation += 1;
+    active.updated = Date.now();
+    await showActive();
+    pushLog('mutate', `${active.name} mutó → GEN ${active.generation} (${pose}/${wear}/${scene})`, {id:active.id});
+    toast('Mutación GEN '+active.generation);
+  }
+
+  // ---------- talk ----------
+  function talkToSpecimen(){
+    if(!active){ toast('Sin espécimen'); return; }
+    const g=active.genes;
+    const lines=[
+      `Soy ${active.name}. ${active.behavior}.`,
+      `Mi anomalía (${active.anomaly}) no es defecto: es señal.`,
+      g.empathy>0.6 ? 'Siento el ruido del mundo y aún así elijo quedarme.' : 'No confío fácil. Demuéstralo con hechos.',
+      g.chaos>0.6 ? 'Si me dejas en auto, mutaré sin pedir permiso.' : 'Prefiero mutaciones que tú autorices.',
+      `Generación ${active.generation}. ${active.wins} victorias en arena.`
+    ];
+    $('#talkOut').textContent = pick(lines)+' '+pick(lines);
+    pushLog('talk', active.name+': '+$('#talkOut').textContent.slice(0,120));
+  }
+
+  // ---------- vault ----------
+  async function refreshVault(){
+    vault = await idbGetAll('specimens');
+    $('#countPill').textContent = vault.length+' especímenes';
+    const box=$('#vaultList');
+    if(!vault.length){ box.innerHTML='<span class="muted">Vacía.</span>'; fillFighterSelects(); return; }
+    box.innerHTML = vault.slice().sort((a,b)=>b.updated-a.updated).map(s=>`
+      <div class="row" style="align-items:center;margin:6px 0;padding:8px;border:1px solid var(--line);border-radius:12px">
+        <img src="${s.image}" style="width:44px;height:66px;object-fit:cover;border-radius:8px"/>
+        <div style="flex:1;margin-left:8px">
+          <b>${s.name}</b> <span class="muted">GEN ${s.generation} · ${s.wins}W</span>
+          <div class="muted" style="font-size:11px">${s.anomaly}</div>
+        </div>
+        <button class="btn" data-load="${s.id}">Usar</button>
+        <button class="btn ghost" data-del="${s.id}">×</button>
+      </div>`).join('');
+    box.querySelectorAll('[data-load]').forEach(b=>b.onclick=async()=>{
+      active = vault.find(x=>x.id===b.dataset.load);
+      await showActive(); toast('Activo: '+active.name); switchTab('lab');
+    });
+    box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      await idbDel('specimens', b.dataset.del);
+      if(active&&active.id===b.dataset.del) active=null;
+      await refreshVault(); await showActive();
+    });
+    fillFighterSelects();
+  }
+
+  async function saveActive(){
+    if(!active) return;
+    active.updated=Date.now();
+    await idbPut('specimens', JSON.parse(JSON.stringify(active)));
+    await refreshVault();
+    pushLog('save', 'Guardado '+active.name);
+    toast('Guardado en cripta');
+  }
+
+  // ---------- arena ----------
+  function fillFighterSelects(){
+    const opts = vault.map(s=>`<option value="${s.id}">${s.name} · GEN${s.generation} · P${Math.round(s.genes.power*100)}</option>`).join('');
+    const extra = active && !vault.find(v=>v.id===active.id)
+      ? `<option value="__active">${active.name} (activo)</option>` : '';
+    $('#fighterA').innerHTML = extra+opts || '<option value="">—</option>';
+    $('#fighterB').innerHTML = opts || '<option value="">—</option>';
+    if($('#fighterA').options.length>1) $('#fighterB').selectedIndex = Math.min(1, $('#fighterB').options.length-1);
+  }
+
+  function getFighter(sel){
+    const v = $(sel).value;
+    if(v==='__active') return active;
+    return vault.find(x=>x.id===v) || null;
+  }
+
+  async function paintArenaSlot(el, sp){
+    el.classList.remove('winner-glow','loser-dim');
+    if(!sp){ el.innerHTML='<div class="empty">—</div>'; return; }
+    el.innerHTML=`<div class="badge">${sp.name}</div><img src="${sp.image}" alt=""/>`;
+  }
+
+  function combatPower(sp){
+    const g=sp.genes;
+    // deterministic-ish with noise
+    const base = g.power*0.34 + g.agility*0.22 + g.mind*0.18 + g.will*0.18 + g.chaos*0.08;
+    const genBonus = Math.min(0.15, (sp.generation-1)*0.01);
+    const form = 0.92 + Math.random()*0.16;
+    return (base + genBonus) * form;
+  }
+
+  function inheritMutation(winner, loser){
+    // pick a gene from loser and blend into winner; also steal anomaly sometimes
+    const keys=['power','agility','mind','will','chaos','empathy'];
+    const k = pick(keys);
+    const before = winner.genes[k];
+    winner.genes[k] = +clamp(winner.genes[k]*0.55 + loser.genes[k]*0.45 + rnd(-0.03,0.08), 0.05, 0.99).toFixed(3);
+    winner.genes = mutateGenes(winner.genes, 0.08);
+    winner.generation += 1;
+    winner.wins = (winner.wins||0)+1;
+    loser.losses = (loser.losses||0)+1;
+    const tag = `${k}←${loser.name}`;
+    winner.inherited = (winner.inherited||[]).slice(-6);
+    winner.inherited.push(tag);
+    if(Math.random()<0.5){
+      winner.anomaly = loser.anomaly;
+      winner.inherited.push('anomalía:'+loser.anomaly.slice(0,24));
+    }
+    // visual inheritance cue
+    winner.scene = 'arena';
+    winner.pose = 'combat';
+    winner.stimulus = `Heredó ${k} de ${loser.name}`;
+    winner.lineage = (winner.lineage||[]).concat([{vs:loser.id, name:loser.name, t:Date.now(), gene:k}]).slice(-20);
+    winner.updated = Date.now();
+    return {gene:k, before, after:winner.genes[k]};
+  }
+
+  async function fight(){
+    let A = getFighter('#fighterA');
+    let B = getFighter('#fighterB');
+    if(!A || !B){ toast('Elige dos especímenes'); return; }
+    if(A.id===B.id){ toast('Deben ser distintos'); return; }
+    // work on copies then persist
+    A = JSON.parse(JSON.stringify(A));
+    B = JSON.parse(JSON.stringify(B));
+    await paintArenaSlot($('#arenaA'), A);
+    await paintArenaSlot($('#arenaB'), B);
+    const logEl = $('#battleLog');
+    logEl.innerHTML='';
+    const add = (m)=>{ logEl.innerHTML = `<div><span class="t">${new Date().toLocaleTimeString()}</span>${m}</div>` + logEl.innerHTML; };
+
+    $('#battleFx').textContent='Cálculo de potencia…';
+    await new Promise(r=>setTimeout(r,400));
+    const pA=combatPower(A), pB=combatPower(B);
+    add(`${A.name} power ${pA.toFixed(3)} · ${B.name} power ${pB.toFixed(3)}`);
+    $('#battleFx').textContent='Choque de núcleos…';
+    await new Promise(r=>setTimeout(r,500));
+
+    // multi-round flavor
+    let scoreA=0, scoreB=0;
+    for(let r=1;r<=3;r++){
+      const ra = combatPower(A), rb=combatPower(B);
+      if(ra>=rb){ scoreA++; add(`R${r}: ${A.name} golpea (${ra.toFixed(2)} ≥ ${rb.toFixed(2)})`); }
+      else { scoreB++; add(`R${r}: ${B.name} golpea (${rb.toFixed(2)} > ${ra.toFixed(2)})`); }
+      $('#battleFx').textContent=`Round ${r}/3`;
+      await new Promise(r=>setTimeout(r,350));
+    }
+    // final with original pA/pB bias
+    if(pA>pB) scoreA++; else scoreB++;
+
+    const aWins = scoreA>=scoreB;
+    const winner = aWins ? A : B;
+    const loser = aWins ? B : A;
+    const inh = inheritMutation(winner, loser);
+    add(`🏆 ${winner.name} vence. Hereda <b>${inh.gene}</b> de ${loser.name} (${inh.before}→${inh.after}). GEN ${winner.generation}`);
+    $('#battleFx').textContent=`${winner.name} hereda ${inh.gene}`;
+
+    // re-render winner image
+    const tmpCanvas = document.createElement('canvas');
+    await renderSpecimen(winner, tmpCanvas);
+
+    await paintArenaSlot($('#arenaA'), A.id===winner.id?winner:loser);
+    await paintArenaSlot($('#arenaB'), B.id===winner.id?winner:loser);
+    (aWins?$('#arenaA'):$('#arenaB')).classList.add('winner-glow');
+    (aWins?$('#arenaB'):$('#arenaA')).classList.add('loser-dim');
+
+    // persist both
+    await idbPut('specimens', winner);
+    await idbPut('specimens', loser);
+    if(active && (active.id===winner.id || active.id===loser.id)){
+      active = winner.id===active.id ? winner : (loser.id===active.id?loser:active);
+      if(active.id===winner.id) active=winner;
+    }
+    await refreshVault();
+    pushLog('arena', `${winner.name} derrotó a ${loser.name} y heredó ${inh.gene}`, {winner:winner.id,loser:loser.id,gene:inh.gene});
+    toast('Victoria: '+winner.name);
+  }
+
+  // ---------- demo specimen (procedural, no external AI) ----------
+  function makeDemoImage(){
+    const c=document.createElement('canvas'); c.width=720; c.height=1080;
+    const ctx=c.getContext('2d');
+    const hue=Math.floor(Math.random()*360);
+    const g=ctx.createLinearGradient(0,0,0,1080);
+    g.addColorStop(0,`hsl(${hue} 30% 10%)`); g.addColorStop(1,`hsl(${(hue+40)%360} 40% 18%)`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,720,1080);
+    // body
+    ctx.fillStyle=`hsl(${hue} 25% 55%)`;
+    ctx.beginPath(); ctx.ellipse(360,780,140,260,0,0,Math.PI*2); ctx.fill();
+    // head
+    ctx.beginPath(); ctx.ellipse(360,380,95,120,0,0,Math.PI*2); ctx.fill();
+    // eyes
+    ctx.fillStyle=`hsl(${(hue+180)%360} 90% 65%)`;
+    ctx.beginPath(); ctx.ellipse(325,380,12,8,0,0,Math.PI*2); ctx.ellipse(395,380,12,8,0,0,Math.PI*2); ctx.fill();
+    // anomaly mark
+    ctx.strokeStyle=`hsl(${(hue+90)%360} 80% 60%)`; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(300,500); ctx.bezierCurveTo(340,560,380,520,420,600); ctx.stroke();
+    ctx.fillStyle='rgba(232,238,247,.9)';
+    ctx.font='700 28px Sora,sans-serif';
+    ctx.fillText('DEMO SPECIMEN', 200, 100);
+    return c.toDataURL('image/jpeg',0.9);
+  }
+
+  // ---------- UI tabs ----------
+  function switchTab(name){
+    $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    ['lab','mutate','arena','log'].forEach(n=>{
+      const el=$('#tab-'+n); if(el) el.classList.toggle('hidden', n!==name);
+    });
+    if(name==='arena'){ fillFighterSelects(); }
+  }
+  $$('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+
+  function renderLog(){
+    $('#evoLog').innerHTML = log.map(e=>`<div><span class="t">${new Date(e.t).toLocaleString()}</span><b>${e.kind}</b> — ${e.msg}</div>`).join('') || '<div class="muted">Sin eventos</div>';
+  }
+
+  // ---------- wire ----------
+  async function boot(){
+    await openDB();
+    await refreshVault();
+    renderLog();
+    await showActive();
+    pushLog('boot','MUTANTE Ω listo · Arena de herencia activa');
+  }
+
+  $('#fileIn').addEventListener('change', async (ev)=>{
+    const f = ev.target.files && ev.target.files[0];
+    if(!f) return;
+    if(!f.type.startsWith('image/')){ toast('Solo imagen'); return; }
+    if(f.size > 12*1024*1024){ toast('Máx 12MB'); return; }
+    const reader = new FileReader();
+    reader.onload = async ()=>{
+      const data = reader.result;
+      active = synthesizeProfile(data);
+      await showActive();
+      pushLog('upload', 'Foto incubada como '+active.name+' (privada local)');
+      toast('Espécimen incubado');
+      switchTab('lab');
+    };
+    reader.readAsDataURL(f);
+    ev.target.value='';
+  });
+
+  $('#btnDemo').onclick = async ()=>{
+    active = synthesizeProfile(makeDemoImage(), pick(NAMES)+'-Demo');
+    await showActive();
+    pushLog('demo','Demo '+active.name);
+    toast('Demo listo');
+  };
+  $('#btnClearActive').onclick = async ()=>{ active=null; await showActive(); };
+  $('#btnSave').onclick = saveActive;
+  $('#btnClone').onclick = async ()=>{
+    if(!active) return;
+    const c=JSON.parse(JSON.stringify(active));
+    c.id=uid(); c.name=active.name+'+'; c.generation=active.generation;
+    c.lineage=(c.lineage||[]).concat([{cloneOf:active.id,t:Date.now()}]);
+    active=c; await showActive(); toast('Clon activo');
+  };
+  $('#btnMutate').onclick = ()=>doMutate();
+  $('#btnTalk').onclick = talkToSpecimen;
+  $('#btnAuto').onclick = ()=>{
+    autoOn=!autoOn;
+    $('#autoPill').textContent = autoOn?'AUTO 25s':'AUTO OFF';
+    $('#autoPill').classList.toggle('on', autoOn);
+    clearInterval(autoTimer);
+    if(autoOn){
+      autoTimer=setInterval(()=>{ if(active) doMutate({intensity:0.1}); }, 25000);
+      toast('Autónomo cada 25s');
+      pushLog('auto','ON');
+    } else { toast('Auto OFF'); pushLog('auto','OFF'); }
+  };
+  $('#btnFight').onclick = fight;
+  $('#btnQuickFill').onclick = async ()=>{
+    if(!active){ active=synthesizeProfile(makeDemoImage(),'Alpha'); await showActive(); }
+    let other = vault.find(v=>v.id!==active.id);
+    if(!other){
+      other = synthesizeProfile(makeDemoImage(),'Beta');
+      await idbPut('specimens', other);
+      await refreshVault();
+    }
+    await idbPut('specimens', active);
+    await refreshVault();
+    fillFighterSelects();
+    // select
+    [...$('#fighterA').options].forEach(o=>{ if(o.value===active.id||o.value==='__active') o.selected=true; });
+    [...$('#fighterB').options].forEach(o=>{ if(o.value===other.id) o.selected=true; });
+    await paintArenaSlot($('#arenaA'), active);
+    await paintArenaSlot($('#arenaB'), other);
+    toast('Listos en arena');
+  };
+  $('#fighterA').onchange = async ()=>{ await paintArenaSlot($('#arenaA'), getFighter('#fighterA')); };
+  $('#fighterB').onchange = async ()=>{ await paintArenaSlot($('#arenaB'), getFighter('#fighterB')); };
+  $('#btnExport').onclick = ()=>{
+    const blob=new Blob([JSON.stringify({log, vaultMeta:vault.map(v=>({id:v.id,name:v.name,gen:v.generation}))},null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mutante-log.json'; a.click();
+  };
+  $('#btnWipeLog').onclick=()=>{ log=[]; localStorage.setItem('mutante_log','[]'); renderLog(); };
+
+  boot();
+})();
+</script>
+</body>
+</html>
