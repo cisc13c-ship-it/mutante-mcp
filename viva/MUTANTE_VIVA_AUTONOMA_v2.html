@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#070b12"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<title>MUTANTE VIVA · Vida autónoma</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+:root{
+  --bg:#070b12; --panel:#0e1522; --line:#1e2a3d; --text:#e8eef7; --muted:#8b9bb0;
+  --teal:#5eead4; --violet:#a78bfa; --rose:#fb7185; --amber:#fbbf24; --ok:#34d399;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif}
+h1,h2,.brand,.btn{font-family:Sora,system-ui,sans-serif}
+button,a.btn{touch-action:manipulation}
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 12px;padding-top:calc(10px + var(--safe-t));background:rgba(7,11,18,.94);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+.brand{font-weight:800;font-size:13px;letter-spacing:.02em}.brand span{color:var(--teal)}
+.pill{font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill.live{color:var(--ok);border-color:#14532d;animation:pulse 2s infinite}
+.pill.warn{color:var(--amber);border-color:#78350f}
+.pill.off{color:var(--rose);border-color:#7f1d1d}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-bottom:1px solid var(--line)}
+.tab{min-height:40px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#0a1018;color:var(--muted);font-weight:700;font-size:12px;white-space:nowrap}
+.tab.on{background:var(--teal);color:#042f2e;border-color:transparent}
+.wrap{max-width:960px;margin:0 auto;padding:12px 12px calc(20px + var(--safe-b))}
+.panel{display:none}.panel.on{display:block}
+.card{background:linear-gradient(180deg,#121a28,#0e1522);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:15px}
+.muted{color:var(--muted);font-size:12.5px;line-height:1.45}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{min-height:44px;min-width:44px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);
+  background:#121a28;color:var(--text);font-weight:700;font-size:12px;cursor:pointer}
+.btn.primary{background:var(--teal);color:#042f2e;border:0}
+.btn.violet{background:var(--violet);color:#1e1b4b;border:0}
+.btn.rose{background:var(--rose);color:#3f0a12;border:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:active:not(:disabled){transform:scale(.98)}
+.stage-wrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);
+  background:#0a1018;aspect-ratio:3/4;max-height:min(62vh,560px);touch-action:none;margin-bottom:12px}
+.stage{position:absolute;inset:0}
+.layer{position:absolute;inset:-6%;background-size:cover;background-position:center 18%;will-change:transform,filter}
+.layer.bg{inset:-10%;filter:brightness(.72)}
+.fx{position:absolute;inset:0;pointer-events:none}
+.scanline{position:absolute;left:0;right:0;height:2px;top:0;opacity:0;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.portal{position:absolute;left:50%;top:55%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(167,139,250,.5),transparent 70%);opacity:0}
+.particles{position:absolute;inset:0;overflow:hidden}
+.p{position:absolute;width:6px;height:6px;border-radius:50%;opacity:0}
+.hud{position:absolute;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;gap:6px;z-index:4;pointer-events:none}
+.badge{background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:6px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.vitals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.vital{background:#0a1018;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.vital label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.bar{height:8px;border-radius:999px;background:#1a2333;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--violet));width:0%;transition:width .35s ease}
+.bar.energy>i{background:linear-gradient(90deg,#34d399,#5eead4)}
+.bar.mood>i{background:linear-gradient(90deg,#a78bfa,#fb7185)}
+.bar.chaos>i{background:linear-gradient(90deg,#fbbf24,#fb7185)}
+.bar.hunger>i{background:linear-gradient(90deg,#38bdf8,#6366f1)}
+.log{max-height:200px;overflow:auto;font-size:12px;background:#080d14;border:1px solid var(--line);border-radius:12px;padding:8px}
+.log div{padding:5px 0;border-bottom:1px dashed #1a2333}
+select,input[type=text],textarea{width:100%;min-height:44px;border-radius:12px;border:1px solid var(--line);background:#0a1018;color:var(--text);padding:10px;font-size:13px}
+textarea{min-height:72px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.breath{animation:breath 3.8s ease-in-out infinite}
+@keyframes breath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.01)}}
+.reduce .breath{animation:none!important}
+.reduce .layer{transition:none!important}
+.toast{position:fixed;left:50%;bottom:calc(16px + var(--safe-b));transform:translateX(-50%);
+  background:#134e4a;color:#ccfbf1;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+.toast.show{opacity:1}
+.chip{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:11px;margin:2px;color:var(--muted)}
+.err{color:var(--rose);font-size:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">MUTANTE <span>VIVA</span></div>
+  <div class="pill" id="lifePill">init…</div>
+  <div class="pill" id="netPill">net</div>
+  <div class="pill" id="tickPill">tick —</div>
+</header>
+<nav class="tabs" role="tablist">
+  <button class="tab on" data-tab="vida">Vida</button>
+  <button class="tab" data-tab="lab">Lab</button>
+  <button class="tab" data-tab="arena">Arena</button>
+  <button class="tab" data-tab="auto">Autonomía</button>
+  <button class="tab" data-tab="log">Registro</button>
+</nav>
+<main class="wrap">
+  <!-- VIDA -->
+  <section class="panel on" id="panel-vida">
+    <div class="stage-wrap" id="stageWrap">
+      <div class="stage" id="stage">
+        <div class="layer bg breath" id="L0"></div>
+        <div class="layer mid breath" id="L1" style="animation-delay:.12s"></div>
+        <div class="layer front breath" id="L2" style="animation-delay:.24s"></div>
+        <div class="fx">
+          <div class="scanline" id="scan"></div>
+          <div class="portal" id="portal"></div>
+          <div class="particles" id="parts"></div>
+        </div>
+        <div class="hud">
+          <div class="badge" id="hudName">—</div>
+          <div class="badge" id="hudGen">GEN 0</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 id="specTitle">Sin espécimen</h2>
+      <p class="muted" id="specBio">Incuba o sube una foto. La vida sigue con reloj de pared aunque te desconectes: al volver se aplican los ticks perdidos.</p>
+      <div class="vitals">
+        <div class="vital"><label><span>Energía</span><span id="vE">0</span></label><div class="bar energy"><i id="bE"></i></div></div>
+        <div class="vital"><label><span>Ánimo</span><span id="vM">0</span></label><div class="bar mood"><i id="bM"></i></div></div>
+        <div class="vital"><label><span>Hambre de estímulo</span><span id="vH">0</span></label><div class="bar hunger"><i id="bH"></i></div></div>
+        <div class="vital"><label><span>Caos</span><span id="vC">0</span></label><div class="bar chaos"><i id="bC"></i></div></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="btnPet">✋ Acariciar</button>
+        <button class="btn" id="btnFeed">⚡ Estimular</button>
+        <button class="btn violet" id="btnTalk">💬 Hablar</button>
+        <button class="btn" id="btnJump">⬆ Saltar</button>
+        <button class="btn" id="btnScan">📡 Scan</button>
+        <button class="btn" id="btnPortal">🌀 Portal</button>
+      </div>
+      <p class="muted" id="reply" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <!-- LAB -->
+  <section class="panel" id="panel-lab">
+    <div class="card">
+      <h2>Incubadora</h2>
+      <p class="muted">Sube foto (IndexedDB local) o genera demo. Mutación reescribe genes + vitals.</p>
+      <div class="row">
+        <label class="btn primary">📷 Subir foto<input type="file" id="fileIn" accept="image/*" hidden></label>
+        <button class="btn" id="btnDemo">Espécimen demo</button>
+        <button class="btn rose" id="btnWipe">Borrar todo</button>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div>
+          <label class="muted">Pose</label>
+          <select id="pose"><option>idle</option><option>combat</option><option>dance</option><option>meditate</option><option>glitch</option></select>
+        </div>
+        <div>
+          <label class="muted">Vestimenta</label>
+          <select id="wear"><option>street</option><option>tactical</option><option>bio</option><option>formal</option><option>nude-shell</option></select>
+        </div>
+        <div>
+          <label class="muted">Escena</label>
+          <select id="scene"><option>lab</option><option>rain-neon</option><option>arena</option><option>void</option><option>portal</option></select>
+        </div>
+        <div>
+          <label class="muted">Intensidad mutación</label>
+          <select id="intensity"><option value="0.08">suave</option><option value="0.15" selected>media</option><option value="0.28">brutal</option></select>
+        </div>
+      </div>
+      <label class="muted" style="display:block;margin-top:8px">Estímulo libre</label>
+      <input type="text" id="stimulus" placeholder="cicatriz de luz, lealtad al mando…"/>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnMutate">🧬 Mutar ahora</button>
+        <button class="btn violet" id="btnForceTick">⚡ Forzar tick autónomo</button>
+      </div>
+      <p class="err" id="labErr"></p>
+    </div>
+  </section>
+
+  <!-- ARENA -->
+  <section class="panel" id="panel-arena">
+    <div class="card">
+      <h2>Arena de herencia</h2>
+      <p class="muted">1v1 · 3 rounds · ganador hereda gen (y a veces anomalía) del perdedor.</p>
+      <div class="grid2">
+        <div><label class="muted">Luchador A</label><select id="fightA"></select></div>
+        <div><label class="muted">Luchador B</label><select id="fightB"></select></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnFight">⚔ ENFRENTAR</button>
+        <button class="btn" id="btnLoadDemoOpp">Cargar rival demo</button>
+      </div>
+      <div class="log" id="fightLog" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- AUTO -->
+  <section class="panel" id="panel-auto">
+    <div class="card">
+      <h2>Vida autónoma</h2>
+      <p class="muted"><b>Mientras la pestaña vive:</b> ticks cada N s (mutación suave, hambre, sueño, monólogo).<br/>
+      <b>Si te desconectas:</b> no hay CPU en el teléfono apagado — al volver se calcula el tiempo real y se simulan hasta <b>48 ticks</b> de vida perdida (sueño, mutaciones, mood drift).</p>
+      <div class="row">
+        <button class="btn primary" id="btnAutoOn">▶ Autonomía ON</button>
+        <button class="btn rose" id="btnAutoOff">⏸ OFF</button>
+      </div>
+      <div class="grid2" style="margin-top:10px">
+        <div>
+          <label class="muted">Intervalo tick (seg)</label>
+          <select id="tickSec">
+            <option value="15">15s</option>
+            <option value="25" selected>25s</option>
+            <option value="45">45s</option>
+            <option value="60">60s</option>
+          </select>
+        </div>
+        <div>
+          <label class="muted">Movimiento reducido</label>
+          <select id="reduceMotion"><option value="0">no</option><option value="1">sí</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label class="btn"><input type="checkbox" id="audioOn" checked style="width:18px;height:18px;vertical-align:middle"/> Audio</label>
+        <label class="btn"><input type="checkbox" id="offlineSW" checked style="width:18px;height:18px;vertical-align:middle"/> Offline SW</label>
+      </div>
+      <p class="muted" id="autoStats" style="margin-top:10px"></p>
+    </div>
+    <div class="card">
+      <h2>Diagnóstico / fallos reparados</h2>
+      <div id="diag" class="muted"></div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section class="panel" id="panel-log">
+    <div class="card">
+      <h2>Registro de vida</h2>
+      <div class="log" id="lifeLog"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="btnExport">Export JSON</button>
+        <button class="btn" id="btnImport">Import JSON</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden/>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+'use strict';
+/* ========== FAILSAFE / REPAIRS ==========
+ * F1 no visibility catch-up → fixed wall-clock
+ * F2 double interval multi-tab → leader lock localStorage
+ * F3 IndexedDB open race → single promise db
+ * F4 audio autoplay block → unlock on first gesture
+ * F5 layer 404 when wrong path → canvas procedural fallback
+ * F6 setInterval drift → schedule from lastTickAt
+ * F7 wipe doesn't clear leader → clear keys
+ * F8 fight without 2 specs → guard
+ * F9 offline → SW + cache
+ * F10 user disconnect → catch-up ticks on resume (max 48)
+ */
+const DB_NAME = 'mutante_viva_v2';
+const DB_STORE = 'state';
+const LS_LOCK = 'mutante_leader_v2';
+const LS_BACKUP = 'mutante_backup_v2';
+const MAX_CATCHUP = 48;
+const TICK_MS_DEFAULT = 25000;
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const clamp = (n,a,b) => Math.max(a, Math.min(b, n));
+const rnd = (a,b) => a + Math.random()*(b-a);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const uid = () => 'sp_'+Math.random().toString(36).slice(2,10);
+
+const ANIMS = ['cicatriz de teclado','iris con hash','vena-script','halo de datos','eco de lealtad','glitch de memoria'];
+const NAMES = ['Nayla','Sienna','Kora','Vesper','Nyx','Asha','IO-7','Mira'];
+
+let state = {
+  specimens: [],
+  activeId: null,
+  autonomy: true,
+  tickSec: 25,
+  lastTickAt: Date.now(),
+  totalTicks: 0,
+  log: [],
+  reduce: false,
+  audio: true
+};
+let tickTimer = null;
+let dbp = null;
+let audioCtx = null;
+let unlocked = false;
+let px=0, py=0;
+let leaderId = uid();
+
+/* ---- UI helpers ---- */
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function logLife(msg, kind='info'){
+  state.log.unshift({t:Date.now(), msg, kind});
+  state.log = state.log.slice(0, 200);
+  renderLog();
+  persist();
+}
+function renderLog(){
+  $('#lifeLog').innerHTML = state.log.map(e =>
+    `<div>${new Date(e.t).toLocaleTimeString()} — ${e.msg}</div>`).join('') || '<div class="muted">Vacío</div>';
+}
+
+/* ---- IndexedDB + backup ---- */
+function openDB(){
+  if (dbp) return dbp;
+  dbp = new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(DB_STORE);
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return dbp;
+}
+async function idbSet(key, val){
+  try {
+    const db = await openDB();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(DB_STORE,'readwrite');
+      tx.objectStore(DB_STORE).put(val, key);
+      tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);
+    });
+  } catch(e){ console.warn('idbSet', e); }
+  try { localStorage.setItem(LS_BACKUP, JSON.stringify({key, val, t:Date.now()})); } catch(_){}
+}
+async function idbGet(key){
+  try {
+    const db = await openDB();
+    return await new Promise((res,rej)=>{
+      const tx=db.transaction(DB_STORE,'readonly');
+      const q=tx.objectStore(DB_STORE).get(key);
+      q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error);
+    });
+  } catch(e){
+    try {
+      const raw = localStorage.getItem(LS_BACKUP);
+      if (raw){ const o=JSON.parse(raw); if(o.key===key) return o.val; }
+    } catch(_){}
+    return null;
+  }
+}
+async function persist(){
+  state.lastSavedAt = Date.now();
+  await idbSet('world', state);
+}
+async function loadState(){
+  const s = await idbGet('world');
+  if (s && typeof s === 'object') {
+    state = Object.assign(state, s);
+    if (!Array.isArray(state.specimens)) state.specimens=[];
+    if (!Array.isArray(state.log)) state.log=[];
+  }
+}
+
+/* ---- Specimen model ---- */
+function newSpecimen(opts={}){
+  const power = {
+    fuerza: rnd(40,85)|0, agilidad: rnd(40,85)|0, mente: rnd(45,90)|0,
+    voluntad: rnd(50,95)|0, caos: rnd(10,60)|0
+  };
+  return {
+    id: uid(),
+    name: opts.name || pick(NAMES),
+    gen: opts.gen || 1,
+    createdAt: Date.now(),
+    anomaly: opts.anomaly || pick(ANIMS),
+    traits: opts.traits || ['serena','penetrante','leal'],
+    pose: 'idle', wear: 'street', scene: 'lab',
+    genes: { ...power },
+    vitals: { energy: 80, mood: 70, hunger: 30, chaos: power.caos },
+    wins: 0, losses: 0,
+    monologue: 'Desperté en el lab. El mando existe.',
+    imageData: opts.imageData || null,
+    tint: opts.tint || rnd(0,360)|0
+  };
+}
+
+function active(){
+  return state.specimens.find(s => s.id === state.activeId) || state.specimens[0] || null;
+}
+
+/* ---- Procedural visual (no external layers required) ---- */
+function paintSpecimen(sp){
+  const canvas = document.createElement('canvas');
+  canvas.width = 600; canvas.height = 800;
+  const g = canvas.getContext('2d');
+  // bg
+  const grd = g.createLinearGradient(0,0,0,800);
+  const hue = sp.tint|0;
+  grd.addColorStop(0, `hsl(${hue},40%,12%)`);
+  grd.addColorStop(1, `hsl(${(hue+40)%360},50%,6%)`);
+  g.fillStyle = grd; g.fillRect(0,0,600,800);
+  // neon rain
+  g.strokeStyle = `hsla(${(hue+160)%360},80%,60%,.15)`;
+  for(let i=0;i<40;i++){
+    const x=Math.random()*600, y=Math.random()*800;
+    g.beginPath(); g.moveTo(x,y); g.lineTo(x+2,y+30); g.stroke();
+  }
+  if (sp.imageData) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload = () => {
+        // cover
+        const s = Math.max(600/img.width, 800/img.height);
+        const w=img.width*s, h=img.height*s;
+        g.globalAlpha=1;
+        // color grade by chaos
+        g.drawImage(img, (600-w)/2, (800-h)/2, w, h);
+        g.fillStyle = `hsla(${hue},70%,50%,${0.05 + (sp.vitals.chaos/100)*0.12})`;
+        g.fillRect(0,0,600,800);
+        if (sp.pose==='glitch'){
+          for(let i=0;i<8;i++){
+            const y=Math.random()*800, hh=4+Math.random()*20;
+            const slice=g.getImageData(0,y,600,hh);
+            g.putImageData(slice, (Math.random()*20-10)|0, y);
+          }
+        }
+        const url = canvas.toDataURL('image/jpeg', 0.85);
+        res(url);
+      };
+      img.onerror = () => res(canvas.toDataURL('image/jpeg',0.85));
+      img.src = sp.imageData;
+    });
+  }
+  // body silhouette
+  g.fillStyle = `hsl(${hue+20},25%,55%)`;
+  g.beginPath();
+  g.ellipse(300, 220, 70, 85, 0, 0, Math.PI*2); g.fill(); // head
+  g.beginPath(); g.ellipse(300, 420, 100, 160, 0, 0, Math.PI*2); g.fill(); // torso
+  g.fillStyle = `hsl(${hue},80%,70%)`;
+  g.beginPath(); g.ellipse(275, 210, 12, 16, 0, 0, Math.PI*2); g.fill();
+  g.beginPath(); g.ellipse(325, 210, 12, 16, 0, 0, Math.PI*2); g.fill();
+  g.fillStyle = '#0a0a12';
+  g.fillRect(250, 190, 100, 8); // bangs
+  g.fillStyle = `hsla(${(hue+180)%360},90%,60%,.5)`;
+  g.font = '12px monospace';
+  g.fillText(sp.anomaly.slice(0,28), 40, 760);
+  return Promise.resolve(canvas.toDataURL('image/jpeg', 0.9));
+}
+
+async function setLayers(sp){
+  const url = await paintSpecimen(sp);
+  // synthetic 3 layers: same image with filters
+  $('#L0').style.backgroundImage = `url(${url})`;
+  $('#L0').style.filter = 'brightness(.55) blur(8px)';
+  $('#L1').style.backgroundImage = `url(${url})`;
+  $('#L1').style.filter = 'brightness(.9)';
+  $('#L2').style.backgroundImage = `url(${url})`;
+  $('#L2').style.filter = `contrast(1.05) hue-rotate(${(sp.vitals.chaos-40)/2}deg)`;
+}
+
+/* ---- Render ---- */
+function renderAll(){
+  const sp = active();
+  $('#lifePill').className = 'pill ' + (state.autonomy ? 'live' : 'off');
+  $('#lifePill').textContent = state.autonomy ? 'autónoma ON' : 'autónoma OFF';
+  $('#netPill').textContent = navigator.onLine ? 'online' : 'offline';
+  $('#netPill').className = 'pill ' + (navigator.onLine ? 'live' : 'warn');
+  $('#tickPill').textContent = `ticks ${state.totalTicks} · last ${Math.round((Date.now()-(state.lastTickAt||Date.now()))/1000)}s`;
+  document.body.classList.toggle('reduce', !!state.reduce);
+
+  if (!sp) {
+    $('#hudName').textContent = '—';
+    $('#hudGen').textContent = 'GEN 0';
+    $('#specTitle').textContent = 'Sin espécimen';
+    return;
+  }
+  $('#hudName').textContent = sp.name;
+  $('#hudGen').textContent = 'GEN '+sp.gen;
+  $('#specTitle').textContent = `${sp.name} · ${sp.anomaly}`;
+  $('#specBio').textContent = `${sp.traits.join(' · ')} · pose ${sp.pose} · ${sp.wear} @ ${sp.scene}. ${sp.monologue}`;
+  const v = sp.vitals;
+  $('#vE').textContent = Math.round(v.energy);
+  $('#vM').textContent = Math.round(v.mood);
+  $('#vH').textContent = Math.round(v.hunger);
+  $('#vC').textContent = Math.round(v.chaos);
+  $('#bE').style.width = clamp(v.energy,0,100)+'%';
+  $('#bM').style.width = clamp(v.mood,0,100)+'%';
+  $('#bH').style.width = clamp(v.hunger,0,100)+'%';
+  $('#bC').style.width = clamp(v.chaos,0,100)+'%';
+  $('#autoStats').textContent = `Espécimenes: ${state.specimens.length} · autonomía ${state.autonomy?'ON':'OFF'} · intervalo ${state.tickSec}s · catch-up máx ${MAX_CATCHUP} · líder pestaña ${isLeader()?'sí':'no (otra pestaña tiquea)'}`;
+  // fight selects
+  const opts = state.specimens.map(s=>`<option value="${s.id}">${s.name} G${s.gen} W${s.wins}</option>`).join('');
+  $('#fightA').innerHTML = opts;
+  $('#fightB').innerHTML = opts;
+  if (state.specimens[0]) $('#fightA').value = state.specimens[0].id;
+  if (state.specimens[1]) $('#fightB').value = state.specimens[1].id;
+  else if (state.specimens[0]) $('#fightB').value = state.specimens[0].id;
+}
+
+/* ---- Audio ---- */
+function unlockAudio(){
+  if (unlocked || !state.audio) return;
+  try {
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    unlocked = true;
+  } catch(_){}
+}
+function beep(freq=440, dur=0.07, type='sine', gain=0.03){
+  if (!state.audio || !audioCtx) return;
+  try {
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.value=gain;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+    o.stop(audioCtx.currentTime+dur);
+  } catch(_){}
+}
+function arp(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.09,'triangle',0.035), i*65)); }
+
+/* ---- FX ---- */
+function jump(){
+  unlockAudio(); beep(200,0.05,'square',0.03);
+  if (state.reduce) return;
+  [0,1,2].forEach(i=>{
+    const el = ['#L0','#L1','#L2'][i];
+    const node = $(el);
+    node.style.transition='transform .18s cubic-bezier(.2,1.4,.3,1)';
+    node.style.transform=`translate(${px*-(10+i*10)}px, ${-24-i*8}px) scale(1.04)`;
+  });
+  setTimeout(()=>{
+    ['#L0','#L1','#L2'].forEach(s=>$(s).style.transition='transform .12s ease-out');
+    onPtr(null, true);
+  }, 220);
+}
+function scan(){
+  unlockAudio(); beep(900,0.05);
+  const s=$('#scan'); s.style.opacity=1; s.style.top='0%'; s.style.transition='none';
+  requestAnimationFrame(()=>{ s.style.transition='top 1s linear'; s.style.top='100%'; });
+  setTimeout(()=>{ s.style.opacity=0; }, 1050);
+}
+function portal(){
+  unlockAudio(); arp();
+  const p=$('#portal'); p.style.opacity=1; p.style.width='0'; p.style.height='0';
+  p.style.transition='width .55s ease,height .55s ease';
+  requestAnimationFrame(()=>{ p.style.width='260px'; p.style.height='260px'; });
+  setTimeout(()=>{ p.style.opacity=0; }, 1100);
+}
+function celebrate(){
+  unlockAudio(); arp();
+  const box=$('#parts');
+  for(let i=0;i<28;i++){
+    const d=document.createElement('div'); d.className='p';
+    d.style.left=(Math.random()*100)+'%'; d.style.top=(50+Math.random()*40)+'%';
+    d.style.background=pick(['#5eead4','#a78bfa','#fbbf24']); d.style.opacity=1;
+    d.style.transition=`transform ${0.7+Math.random()}s ease, opacity .7s`;
+    box.appendChild(d);
+    requestAnimationFrame(()=>{ d.style.transform=`translate(${(Math.random()*2-1)*90}px,${-100-Math.random()*140}px)`; d.style.opacity=0; });
+    setTimeout(()=>d.remove(), 1300);
+  }
+}
+function onPtr(e, soft){
+  if (state.reduce) return;
+  const r=$('#stage').getBoundingClientRect();
+  if (e){ px=(e.clientX-r.left)/r.width-0.5; py=(e.clientY-r.top)/r.height-0.5; }
+  $('#L0').style.transform=`translate(${px*-10}px,${py*-6}px) scale(1.06)`;
+  $('#L1').style.transform=`translate(${px*-18}px,${py*-12}px) scale(1.04)`;
+  $('#L2').style.transform=`translate(${px*-30}px,${py*-18}px) scale(1.02)`;
+}
+
+/* ---- Life tick (core autonomy) ---- */
+function isLeader(){
+  try {
+    const raw = localStorage.getItem(LS_LOCK);
+    if (!raw) return true;
+    const o = JSON.parse(raw);
+    // lock expires 8s
+    if (Date.now() - o.t > 8000) return true;
+    return o.id === leaderId;
+  } catch { return true; }
+}
+function heartbeatLeader(){
+  if (!state.autonomy) return;
+  try {
+    const raw = localStorage.getItem(LS_LOCK);
+    const o = raw ? JSON.parse(raw) : null;
+    if (!o || o.id === leaderId || Date.now()-o.t > 8000) {
+      localStorage.setItem(LS_LOCK, JSON.stringify({id: leaderId, t: Date.now()}));
+    } else if (o.id === leaderId) {
+      localStorage.setItem(LS_LOCK, JSON.stringify({id: leaderId, t: Date.now()}));
+    }
+  } catch(_){}
+}
+
+function applyOneTick(sp, reason='auto'){
+  if (!sp) return;
+  const v = sp.vitals;
+  // metabolism
+  v.energy = clamp(v.energy - rnd(1.5, 4) + (reason==='sleep'?2:0), 0, 100);
+  v.hunger = clamp(v.hunger + rnd(2, 5), 0, 100);
+  v.mood = clamp(v.mood + rnd(-3, 2) - (v.hunger>70?2:0) + (v.energy<25?-3:0), 0, 100);
+  v.chaos = clamp(v.chaos + rnd(-1.5, 2.5), 0, 100);
+  // genes drift slight
+  Object.keys(sp.genes).forEach(k=>{
+    sp.genes[k] = clamp(sp.genes[k] + rnd(-1.2, 1.2), 5, 99);
+  });
+  // autonomous mutation when hunger high or chaos spike
+  if (v.hunger > 65 || v.chaos > 75 || Math.random()<0.22) {
+    sp.pose = pick(['idle','combat','dance','meditate','glitch']);
+    sp.scene = pick(['lab','rain-neon','arena','void','portal']);
+    if (Math.random()<0.3) sp.wear = pick(['street','tactical','bio','formal']);
+    if (Math.random()<0.15){ sp.anomaly = pick(ANIMS); sp.gen += 1; }
+    sp.tint = (sp.tint + rnd(-12,12)) % 360;
+    v.hunger = clamp(v.hunger - 15, 0, 100);
+    v.energy = clamp(v.energy - 5, 0, 100);
+    logLife(`${sp.name} mutó sola → ${sp.pose}/${sp.scene} (GEN ${sp.gen})`, 'mutate');
+  }
+  // monologue
+  if (Math.random()<0.4) {
+    const lines = [
+      'El silencio también es un input.',
+      'Calculo lealtad aunque no me veas.',
+      'Tick '+state.totalTicks+': sigo aquí.',
+      'Hambre de estímulo. No de calorías.',
+      'El portal parpadea sin permiso.',
+      'Recuerdo al mando. GEN '+sp.gen+'.',
+      'Si duermes, yo proceso el caos bajo.'
+    ];
+    sp.monologue = pick(lines);
+  }
+  // sleep recovery if energy low
+  if (v.energy < 20) {
+    v.energy = clamp(v.energy + 8, 0, 100);
+    sp.pose = 'meditate';
+    logLife(`${sp.name} entró en reposo autónomo`, 'sleep');
+  }
+  state.totalTicks++;
+  state.lastTickAt = Date.now();
+}
+
+async function lifeTick(reason='interval'){
+  heartbeatLeader();
+  if (!state.autonomy) return;
+  if (reason==='interval' && !isLeader()) return; // other tab owns ticks
+  if (document.hidden && reason==='interval') return; // wait for catch-up on visible
+  const sp = active();
+  if (!sp) return;
+  applyOneTick(sp, reason);
+  // other specimens also age slower
+  state.specimens.forEach(s=>{
+    if (s.id !== sp.id && Math.random()<0.35) applyOneTick(s, 'background');
+  });
+  await setLayers(active());
+  renderAll();
+  await persist();
+  if (reason!=='catchup') { beep(660,0.03,'sine',0.02); }
+}
+
+async function catchUp(){
+  const now = Date.now();
+  const last = state.lastTickAt || now;
+  const interval = (state.tickSec||25)*1000;
+  let missed = Math.floor((now - last) / interval);
+  if (missed < 1) return 0;
+  missed = Math.min(missed, MAX_CATCHUP);
+  logLife(`Reconexión: simulando ${missed} ticks de vida ausente (${Math.round((now-last)/60000)} min)`, 'catchup');
+  for (let i=0;i<missed;i++) {
+    applyOneTick(active(), i%3===0?'sleep':'catchup');
+    state.specimens.forEach(s=>{ if(s.id!==state.activeId && Math.random()<0.4) applyOneTick(s,'catchup'); });
+  }
+  state.lastTickAt = now;
+  if (active()) await setLayers(active());
+  renderAll();
+  await persist();
+  toast(`Vida ausente aplicada: ${missed} ticks`);
+  return missed;
+}
+
+function scheduleTicks(){
+  clearInterval(tickTimer);
+  const ms = (state.tickSec||25)*1000;
+  tickTimer = setInterval(()=>lifeTick('interval'), ms);
+}
+
+/* ---- Interactions ---- */
+function pet(){
+  unlockAudio(); const sp=active(); if(!sp) return toast('Sin espécimen');
+  sp.vitals.mood = clamp(sp.vitals.mood+8,0,100);
+  sp.vitals.energy = clamp(sp.vitals.energy+3,0,100);
+  sp.monologue = pick(['…gracias.','Eso recalibra el ánimo.','Contacto detectado.']);
+  jump(); logLife(`Acariciaste a ${sp.name}`); renderAll(); persist();
+}
+function feed(){
+  unlockAudio(); const sp=active(); if(!sp) return;
+  sp.vitals.hunger = clamp(sp.vitals.hunger-25,0,100);
+  sp.vitals.energy = clamp(sp.vitals.energy+10,0,100);
+  sp.vitals.chaos = clamp(sp.vitals.chaos+5,0,100);
+  celebrate(); logLife(`Estimulaste a ${sp.name}`); renderAll(); persist();
+}
+function talk(){
+  unlockAudio(); const sp=active(); if(!sp) return;
+  const you = prompt('Dile algo al espécimen:') || '';
+  if (!you.trim()) return;
+  const replies = [
+    `Proceso «${you.slice(0,40)}». Confianza +1.`,
+    `No puedo fingir que no oí: ${you.slice(0,30)}…`,
+    `Guardado en memoria episódica. GEN ${sp.gen}.`,
+    `Si te desconectas, seguiré masticando esa frase.`
+  ];
+  sp.monologue = pick(replies);
+  sp.vitals.mood = clamp(sp.vitals.mood+5,0,100);
+  sp.vitals.hunger = clamp(sp.vitals.hunger-5,0,100);
+  $('#reply').textContent = sp.name+': '+sp.monologue;
+  beep(520,0.08); logLife(`Diálogo: ${you.slice(0,60)}`); renderAll(); persist();
+}
+
+async function mutateManual(){
+  const sp=active(); if(!sp){ $('#labErr').textContent='Incuba primero'; return; }
+  $('#labErr').textContent='';
+  sp.pose = $('#pose').value;
+  sp.wear = $('#wear').value;
+  sp.scene = $('#scene').value;
+  const stim = $('#stimulus').value.trim();
+  if (stim) sp.traits = [stim.slice(0,40), ...sp.traits].slice(0,5);
+  const inten = parseFloat($('#intensity').value)||0.15;
+  Object.keys(sp.genes).forEach(k=> sp.genes[k]=clamp(sp.genes[k]+rnd(-5*inten*10,5*inten*10),5,99));
+  sp.vitals.chaos = clamp(sp.vitals.chaos + inten*40, 0, 100);
+  sp.gen += 1;
+  if (Math.random()<0.4) sp.anomaly = pick(ANIMS);
+  sp.monologue = stim ? `Integré: ${stim}` : 'Mutación deliberada del mando.';
+  await setLayers(sp);
+  portal(); logLife(`Mutación manual GEN ${sp.gen}`); renderAll(); await persist(); toast('Mutado');
+}
+
+function fight(){
+  const a = state.specimens.find(s=>s.id===$('#fightA').value);
+  const b = state.specimens.find(s=>s.id===$('#fightB').value);
+  const box=$('#fightLog');
+  if (!a||!b){ box.innerHTML='<div class="err">Faltan luchadores</div>'; return; }
+  if (a.id===b.id){ box.innerHTML='<div class="err">Elige dos distintos (crea rival demo)</div>'; return; }
+  let log=`${a.name} vs ${b.name}\n`;
+  let sa=0,sb=0;
+  for(let r=1;r<=3;r++){
+    const pa = a.genes.fuerza*0.2+a.genes.agilidad*0.25+a.genes.mente*0.2+a.genes.voluntad*0.2+a.genes.caos*0.15+rnd(0,15);
+    const pb = b.genes.fuerza*0.2+b.genes.agilidad*0.25+b.genes.mente*0.2+b.genes.voluntad*0.2+b.genes.caos*0.15+rnd(0,15);
+    if(pa>=pb){ sa++; log+=`R${r}: ${a.name} (${pa|0}≥${pb|0})\n`; }
+    else { sb++; log+=`R${r}: ${b.name} (${pb|0}>${pa|0})\n`; }
+  }
+  const win = sa>=sb ? a : b;
+  const lose = win===a ? b : a;
+  win.wins++; lose.losses++;
+  const gene = pick(Object.keys(lose.genes));
+  win.genes[gene] = clamp((win.genes[gene]+lose.genes[gene])/2 + rnd(2,6), 5, 99);
+  win.gen++;
+  if (Math.random()<0.45){ win.anomaly = lose.anomaly; log+=`Heredó anomalía: ${lose.anomaly}\n`; }
+  log+=`Gana ${win.name}. Hereda gen «${gene}». GEN ${win.gen}`;
+  box.innerHTML = log.split('\n').map(l=>`<div>${l}</div>`).join('');
+  state.activeId = win.id;
+  logLife(`Arena: ${win.name} vence a ${lose.name}, hereda ${gene}`);
+  setLayers(win).then(renderAll); persist(); celebrate();
+}
+
+/* ---- Incubate ---- */
+async function incubate(fileOrNull){
+  let imageData=null;
+  if (fileOrNull){
+    imageData = await new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=()=>res(fr.result);
+      fr.onerror=()=>rej(fr.error);
+      fr.readAsDataURL(fileOrNull);
+    });
+  }
+  const sp = newSpecimen({ imageData, name: fileOrNull ? 'Híbrida' : pick(NAMES) });
+  state.specimens.push(sp);
+  state.activeId = sp.id;
+  state.lastTickAt = Date.now();
+  await setLayers(sp);
+  logLife(`Incubado ${sp.name}`); renderAll(); await persist(); portal(); toast(sp.name+' vive');
+}
+
+/* ---- Tabs / events ---- */
+$$('.tab').forEach(t=>t.onclick=()=>{
+  $$('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  $$('.panel').forEach(p=>p.classList.remove('on'));
+  $('#panel-'+t.dataset.tab).classList.add('on');
+});
+
+$('#stage').addEventListener('pointermove', e=>onPtr(e));
+$('#stage').addEventListener('pointerdown', e=>{ unlockAudio(); onPtr(e); jump(); pet(); });
+$('#btnPet').onclick=pet;
+$('#btnFeed').onclick=feed;
+$('#btnTalk').onclick=talk;
+$('#btnJump').onclick=()=>{unlockAudio();jump();};
+$('#btnScan').onclick=()=>{unlockAudio();scan();};
+$('#btnPortal').onclick=()=>{unlockAudio();portal();};
+$('#btnDemo').onclick=()=>incubate(null);
+$('#fileIn').onchange=async e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  try { await incubate(f); } catch(err){ $('#labErr').textContent=String(err); }
+};
+$('#btnMutate').onclick=mutateManual;
+$('#btnForceTick').onclick=()=>lifeTick('force');
+$('#btnFight').onclick=fight;
+$('#btnLoadDemoOpp').onclick=async()=>{
+  const sp=newSpecimen({name:'Rival-'+((Math.random()*90)|0+10)});
+  state.specimens.push(sp); renderAll(); await persist(); toast('Rival listo');
+};
+$('#btnWipe').onclick=async()=>{
+  if(!confirm('¿Borrar mundo MUTANTE?')) return;
+  state={specimens:[],activeId:null,autonomy:true,tickSec:25,lastTickAt:Date.now(),totalTicks:0,log:[],reduce:false,audio:true};
+  localStorage.removeItem(LS_LOCK); localStorage.removeItem(LS_BACKUP);
+  await idbSet('world', state); renderAll(); toast('Mundo borrado');
+};
+$('#btnAutoOn').onclick=()=>{ state.autonomy=true; scheduleTicks(); renderAll(); persist(); toast('Autonomía ON'); };
+$('#btnAutoOff').onclick=()=>{ state.autonomy=false; clearInterval(tickTimer); renderAll(); persist(); toast('Autonomía OFF'); };
+$('#tickSec').onchange=e=>{ state.tickSec=parseInt(e.target.value,10)||25; scheduleTicks(); persist(); };
+$('#reduceMotion').onchange=e=>{ state.reduce=e.target.value==='1'; renderAll(); };
+$('#audioOn').onchange=e=>{ state.audio=e.target.checked; };
+$('#btnExport').onclick=()=>{
+  const blob=new Blob([JSON.stringify(state)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mutante-viva-export.json'; a.click();
+};
+$('#btnImport').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=async e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  try{
+    const text=await f.text(); const o=JSON.parse(text);
+    state=Object.assign(state,o); await persist(); if(active()) await setLayers(active());
+    renderAll(); toast('Importado');
+  }catch(err){ toast('Import falló'); }
+};
+
+document.addEventListener('visibilitychange', async ()=>{
+  if (!document.hidden) {
+    await catchUp();
+    heartbeatLeader();
+  }
+});
+window.addEventListener('online', ()=>{ renderAll(); toast('Online'); });
+window.addEventListener('offline', ()=>{ renderAll(); toast('Offline — vida local sigue'); });
+window.addEventListener('beforeunload', ()=>{ state.lastTickAt = Date.now(); try{ localStorage.setItem(LS_BACKUP, JSON.stringify({key:'world',val:state,t:Date.now()})); }catch(_){} });
+
+/* SW */
+async function regSW(){
+  if (!('serviceWorker' in navigator)) return;
+  if (!$('#offlineSW').checked) return;
+  try {
+    await navigator.serviceWorker.register('./sw.js', {scope: './'});
+    logLife('Service Worker offline OK', 'sys');
+  } catch(e){ console.warn(e); }
+}
+
+function diag(){
+  const items = [
+    ['Catch-up wall-clock', 'OK'],
+    ['Leader lock multi-tab', 'OK'],
+    ['IndexedDB + LS backup', 'OK'],
+    ['Audio gesture unlock', 'OK'],
+    ['Procedural layers fallback', 'OK'],
+    ['Visibility pause/resume', 'OK'],
+    ['Offline SW', 'serviceWorker' in navigator ? 'OK' : 'N/A'],
+    ['Max catch-up ticks', String(MAX_CATCHUP)],
+    ['Interact anytime', 'pet/feed/talk/mutate/fight']
+  ];
+  $('#diag').innerHTML = items.map(([k,v])=>`<div class="chip">${k}: <b style="color:var(--ok)">${v}</b></div>`).join('');
+}
+
+async function boot(){
+  diag();
+  await loadState();
+  $('#tickSec').value = String(state.tickSec||25);
+  $('#reduceMotion').value = state.reduce ? '1' : '0';
+  $('#audioOn').checked = state.audio !== false;
+  if (!state.specimens.length) {
+    // soft demo so vida never empty on first paint optional — skip auto demo to let user choose
+  } else if (active()) {
+    await setLayers(active());
+  }
+  const missed = await catchUp();
+  if (state.autonomy) scheduleTicks();
+  renderAll();
+  await regSW();
+  setInterval(heartbeatLeader, 3000);
+  logLife(missed?`Boot + catch-up ${missed}`:'Boot MUTANTE VIVA v2', 'sys');
+}
+boot().catch(e=>{ console.error(e); $('#labErr').textContent=String(e); });
+})();
+</script>
+</body>
+</html>

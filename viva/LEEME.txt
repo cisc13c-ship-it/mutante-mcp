@@ -1,0 +1,20 @@
+MUTANTE VIVA AUTÓNOMA v2
+========================
+Qué repara
+- Vida al desconectar: catch-up por reloj de pared (máx 48 ticks)
+- Multi-pestaña: solo un líder tiquea
+- IndexedDB + backup localStorage
+- Audio bloqueado: unlock al tocar
+- Capas sin fotos externas: canvas procedural + tu foto
+- Offline: service worker
+- Arena, mutar, acariciar, hablar a voluntad
+
+Cómo
+1. Abre index.html o MUTANTE_VIVA_AUTONOMA_v2.html
+2. Demo o sube foto
+3. Autonomía ON (default)
+4. Cierra el navegador; al volver simula el tiempo ausente
+
+Límite honesto
+No hay CPU con el teléfono apagado / pestaña matada por el SO.
+La "vida desconectada" se SIMULA al reabrir con delta de tiempo real.
